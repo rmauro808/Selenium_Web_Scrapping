@@ -1,3 +1,5 @@
+#This will go to the practice website and fill out the text boxes, and then press the log in button. The screen will update and then it will click the log out button. Then close. 
+
 from selenium import webdriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver import Keys
