@@ -1,3 +1,7 @@
+#This pythong program will go to a site then fill out a text line. Then once completed it will find the button on the screen and click it.
+#When clicking the button it will change to what was typed in to confirm the program worked properly. 
+
+
 from selenium import webdriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver import Keys
