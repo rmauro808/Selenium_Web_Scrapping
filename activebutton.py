@@ -1,3 +1,7 @@
+#This is a python program that will go to a website and find a button/link to click. After the link has been clicked once the class will change.
+#This program is prepared to handle that as it will look for the new class name and then continue to click to the amount of times you'd like. 
+
+
 from telnetlib import EC
 
 from selenium import webdriver
