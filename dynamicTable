@@ -1,0 +1,100 @@
+#This is a Python and Selenium program that will find the table on the site and find the Chrome cell, and the corresponding CPU field and print them. It will then look at the bottom of the page and find the static CPU percent and see if it matches or not. 
+
+
+from telnetlib import EC
+
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+
+
+# Set up Chrome options
+options = Options()
+options.add_experimental_option("detach", True)
+
+# Create a new instance of the Chrome driver
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
+
+# Navigate to practice
+driver.get("http://www.uitestingplayground.com/dynamictable")
+
+#find the information we need.
+find_table = driver.find_element(By.XPATH, "/html/body/section/div/div")
+rows = driver.find_elements(By.XPATH, '//div[@role="row"]')
+cells = driver.find_elements(By.XPATH, '//div[@role="cell"]')
+
+
+#set our starting points.
+found_chrome = None
+found_cpu = None
+
+#declare the rows.
+for row in rows:
+    cells = row.find_elements(By.XPATH, './/span[@role="cell"]')
+
+    #look for the chrome cell in the table
+    for cell in cells:
+        if 'Chrome' in cell.text:
+            found_chrome = cell
+
+            #if found then look for the CPU %
+            for cell in cells:
+                if '%' in cell.text:
+                    found_cpu = cell
+            break
+
+        #if it isn't found just break
+        if found_cpu:
+            break
+
+    #if it isn't found just break
+    if found_chrome:
+        break
+
+#If is was found then print it
+if found_chrome:
+    print("Found the cell with Chrome")
+    print(found_chrome.text)
+    print()
+
+#If Cpu was found then print it
+if found_cpu:
+    print("Found the cell with CPU")
+    print(found_cpu.text)
+    print()
+
+else:
+    #if it wasn't found then print error.
+    print("Didn't find the cell with Chrome")
+
+#find the cpu % at the bottom of the page to compare
+static_cpu = driver.find_element(By.CLASS_NAME, 'bg-warning')
+#print(static_cpu.text)
+
+#set the index to find the % only for comparison
+percent_index = static_cpu.text.index('%')
+
+#Find the percent sign and pull the last 3 character before.
+if percent_index != -1:
+    percent = static_cpu.text[percent_index - 3:]
+else:
+    #if there is not a percent it will print this error.
+    print("Didn't find a % in the cell")
+
+#compare the cpu's percents together and print if they match or not.
+if found_cpu.text == percent:
+    print(f"{percent} is a match to {found_cpu.text}")
+
+else:
+    print(f"{percent} is not a match to {found_cpu.text}")
+
+#sleep and quit. 
+time.sleep(2)
+driver.quit()
+
+
+
