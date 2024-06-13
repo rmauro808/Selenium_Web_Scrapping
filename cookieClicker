@@ -1,0 +1,66 @@
+#This is a program that will open up the Chrome to the cookie clicker game website. It find the correct language and select it. Then it will find the big cookie and then start clicking forever.
+#Also, it will look on the right side for upgrades as they appear and click them. 
+
+
+import selenium
+from selenium import webdriver
+from selenium.webdriver import Keys
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.wait import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
+import time
+
+product_price_prefix = "productPrice"
+product_prefix = "product"
+
+# Create a new instance of the Chrome driver
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+driver.get("https://orteil.dashnet.org/cookieclicker/")
+
+WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'English')]"))
+)
+
+language = driver.find_element(By.XPATH, "//*[contains(text(), 'English')]")
+language.click()
+
+WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.ID, "bigCookie"))
+)
+
+
+while True:
+    try:
+        driver.find_element(By.ID, "bigCookie").click()
+        cookies_element = driver.find_element(By.ID, 'cookies')
+        cookies_text = cookies_element.text.split(" ")[0]
+        cookies = int(cookies_text.replace(",", ""))
+
+        for i in range(4):
+            product_price_element = driver.find_element(By.ID, product_price_prefix + str(i))
+            product_price_text = product_price_element.text
+
+            # Check if the product price text is empty
+            if not product_price_text:
+                print("Product price text is empty, skipping...")
+                continue
+
+            product_price = int(product_price_text.replace(",", ""))
+
+            if cookies >= product_price:
+                product = driver.find_element(By.ID, product_prefix + str(i))
+                product.click()
+                break
+    except selenium.common.exceptions.StaleElementReferenceException:
+        # Handle stale element by re-locating it or logging an appropriate message
+        print("Element went stale, re-finding the element.")
+        continue  # Re-attempt the operation in the next iteration
+    except ValueError:
+        # Handle the case where the product price text cannot be converted to an integer
+        print("Invalid product price:", product_price_text)
+        continue  # Skip this product and try the next one
+
